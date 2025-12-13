@@ -18,4 +18,10 @@ router.get('/user', auth, bookingController.getUserBookings);
 // @access  Private/Admin
 router.get('/admin', auth, admin, bookingController.getAllBookings);
 
+// @route   GET api/bookings/stats
+// @desc    Get admin statistics
+// @access  Private/Admin
+router.get('/stats/admin', auth, admin, bookingController.getAdminStats);
+
+
 module.exports = router;

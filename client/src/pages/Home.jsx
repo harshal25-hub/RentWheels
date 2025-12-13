@@ -1,7 +1,27 @@
 import { Link } from 'react-router-dom';
 import { ShieldCheck, Zap, Heart } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import CarCard from '../components/CarCard';
 
 const Home = () => {
+    const [cars, setCars] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCars = async () => {
+            try {
+                const res = await axios.get('http://localhost:5000/api/cars');
+                setCars(res.data.slice(0, 3)); // Show only first 3 cars
+            } catch (error) {
+                console.error('Error fetching cars:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchCars();
+    }, []);
+
     return (
         <div>
             {/* Hero Section */}
@@ -57,6 +77,34 @@ const Home = () => {
                         </div>
                     ))}
                 </div>
+            </section>
+
+            {/* Featured Cars Section */}
+            <section className="mb-20">
+                <div className="text-center mb-16">
+                    <h2 className="text-3xl font-bold mb-4">Featured Vehicles</h2>
+                    <p className="text-gray-600 max-w-2xl mx-auto">Discover our most popular cars handpicked for your next adventure.</p>
+                </div>
+
+                {loading ? (
+                    <div className="flex justify-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+                    </div>
+                ) : (
+                    <>
+                        <div className="grid md:grid-cols-3 gap-8 mb-12">
+                            {cars.map(car => (
+                                <CarCard key={car._id} car={car} />
+                            ))}
+                        </div>
+
+                        <div className="flex justify-center">
+                            <Link to="/cars" className="bg-primary-600 text-white px-8 py-3 rounded-full font-semibold hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/30">
+                                View More Cars
+                            </Link>
+                        </div>
+                    </>
+                )}
             </section>
         </div>
     );

@@ -1,5 +1,6 @@
 const Booking = require('../models/Booking');
 const Car = require('../models/Car');
+const User = require('../models/User');
 
 exports.createBooking = async (req, res) => {
     try {
@@ -66,3 +67,26 @@ exports.getAllBookings = async (req, res) => {
         res.status(500).send('Server Error');
     }
 };
+
+exports.getAdminStats = async (req, res) => {
+    try {
+        const totalBookings = await Booking.countDocuments();
+        const totalUsers = await User.countDocuments();
+        const totalCars = await Car.countDocuments();
+        
+        // Calculate total revenue from confirmed bookings
+        const confirmedBookings = await Booking.find({ status: 'Confirmed' });
+        const totalRevenue = confirmedBookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
+
+        res.json({
+            totalBookings,
+            totalUsers,
+            totalCars,
+            totalRevenue
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+

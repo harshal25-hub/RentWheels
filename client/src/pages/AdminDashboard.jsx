@@ -5,13 +5,20 @@ import { BarChart3, Users, Car, Calendar, Search } from 'lucide-react';
 
 const AdminDashboard = () => {
     const [bookings, setBookings] = useState([]);
+    const [stats, setStats] = useState({ totalBookings: 0, totalUsers: 0, totalCars: 0, totalRevenue: 0 });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const bookingsRes = await axios.get('http://localhost:5000/api/bookings/admin');
+                const bookingsRes = await axios.get('http://localhost:5000/api/bookings/admin', {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                });
+                const statsRes = await axios.get('http://localhost:5000/api/bookings/stats/admin', {
+                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                });
                 setBookings(bookingsRes.data);
+                setStats(statsRes.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -52,10 +59,10 @@ const AdminDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                <StatCard icon={<Calendar size={24} className="text-blue-600" />} title="Total Bookings" value={bookings.length} color="bg-blue-600" />
-                <StatCard icon={<Users size={24} className="text-purple-600" />} title="Active Users" value="24" color="bg-purple-600" />
-                <StatCard icon={<Car size={24} className="text-orange-600" />} title="Fleet Status" value="12 Cars" color="bg-orange-600" />
-                <StatCard icon={<BarChart3 size={24} className="text-green-600" />} title="Revenue" value="$12,450" color="bg-green-600" />
+                <StatCard icon={<Calendar size={24} className="text-blue-600" />} title="Total Bookings" value={stats.totalBookings} color="bg-blue-600" />
+                <StatCard icon={<Users size={24} className="text-purple-600" />} title="Active Users" value={stats.totalUsers} color="bg-purple-600" />
+                <StatCard icon={<Car size={24} className="text-orange-600" />} title="Fleet Size" value={`${stats.totalCars} Cars`} color="bg-orange-600" />
+                <StatCard icon={<BarChart3 size={24} className="text-green-600" />} title="Revenue" value={`$${stats.totalRevenue.toLocaleString()}`} color="bg-green-600" />
             </div>
 
             <div className="bg-white rounded-3xl shadow-card border border-gray-100 overflow-hidden">
