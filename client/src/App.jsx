@@ -12,6 +12,8 @@ import CarDetails from './pages/CarDetails';
 import Booking from './pages/Booking';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminLayout from './components/AdminLayout';
+import AdminBookings from './pages/AdminBookings';
 
 function App() {
     return (
@@ -39,9 +41,13 @@ function App() {
 
                         <Route path="admin" element={
                             <ProtectedRoute adminOnly={true}>
-                                <AdminDashboard />
+                                <AdminLayout />
                             </ProtectedRoute>
-                        } />
+                        }>
+                            <Route index element={<AdminDashboard />} />
+                            <Route path="bookings" element={<AdminBookings />} />
+
+                        </Route>
                     </Route>
                 </Routes>
             </Router>

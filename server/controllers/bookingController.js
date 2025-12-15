@@ -73,7 +73,7 @@ exports.getAdminStats = async (req, res) => {
         const totalBookings = await Booking.countDocuments();
         const totalUsers = await User.countDocuments();
         const totalCars = await Car.countDocuments();
-        
+
         // Calculate total revenue from confirmed bookings
         const confirmedBookings = await Booking.find({ status: 'Confirmed' });
         const totalRevenue = confirmedBookings.reduce((sum, booking) => sum + booking.totalPrice, 0);
@@ -84,6 +84,46 @@ exports.getAdminStats = async (req, res) => {
             totalCars,
             totalRevenue
         });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+};
+
+exports.updateBookingStatus = async (req, res) => {
+    try {
+        console.log('Update Status Route Hit');
+        console.log('Params:', req.params);
+        console.log('Body:', req.body);
+
+        const { status } = req.body;
+        const booking = await Booking.findById(req.params.id);
+
+        if (!booking) {
+            console.log('Booking not found in DB for ID:', req.params.id);
+            return res.status(404).json({ message: 'Booking not found' });
+        }
+
+        if (!['Confirmed', 'Rejected'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
+
+        booking.status = status;
+        await booking.save();
+
+        // Notification logic (placeholder)
+        const user = await User.findById(booking.user);
+        if (user) {
+            if (status === 'Confirmed') {
+                console.log(`Notification: Booking ${booking._id} confirmed for user ${user.email}`);
+                // TODO: Send confirmation email
+            } else if (status === 'Rejected') {
+                console.log(`Notification: Booking ${booking._id} rejected for user ${user.email}`);
+                // TODO: Send rejection email
+            }
+        }
+
+        res.json(booking);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

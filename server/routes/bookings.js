@@ -24,4 +24,9 @@ router.get('/admin', auth, admin, bookingController.getAllBookings);
 router.get('/stats/admin', auth, admin, bookingController.getAdminStats);
 
 
+// @route   PUT api/bookings/:id/status
+// @desc    Update booking status (Accept/Reject)
+// @access  Private/Admin
+router.put('/:id/status', auth, admin, bookingController.updateBookingStatus);
+
 module.exports = router;

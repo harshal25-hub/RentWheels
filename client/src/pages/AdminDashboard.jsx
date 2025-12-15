@@ -1,23 +1,17 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { format } from 'date-fns';
-import { BarChart3, Users, Car, Calendar, Search } from 'lucide-react';
+import { BarChart3, Users, Car, Calendar } from 'lucide-react';
 
 const AdminDashboard = () => {
-    const [bookings, setBookings] = useState([]);
     const [stats, setStats] = useState({ totalBookings: 0, totalUsers: 0, totalCars: 0, totalRevenue: 0 });
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const bookingsRes = await axios.get('http://localhost:5000/api/bookings/admin', {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-                });
                 const statsRes = await axios.get('http://localhost:5000/api/bookings/stats/admin', {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                 });
-                setBookings(bookingsRes.data);
                 setStats(statsRes.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -65,58 +59,18 @@ const AdminDashboard = () => {
                 <StatCard icon={<BarChart3 size={24} className="text-green-600" />} title="Revenue" value={`$${stats.totalRevenue.toLocaleString()}`} color="bg-green-600" />
             </div>
 
-            <div className="bg-white rounded-3xl shadow-card border border-gray-100 overflow-hidden">
-                <div className="p-8 border-b border-gray-100 flex justify-between items-center">
-                    <h3 className="text-xl font-bold text-gray-900">Recent Bookings</h3>
-                    <div className="relative">
-                        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                        <input type="text" placeholder="Search..." className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" />
-                    </div>
-                </div>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-10 text-white relative overflow-hidden shadow-2xl">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary-500 rounded-full mix-blend-overlay filter blur-3xl opacity-20 transform translate-x-1/2 -translate-y-1/2"></div>
 
-                <div className="overflow-x-auto">
-                    <table className="min-w-full">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="py-4 px-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">User</th>
-                                <th className="py-4 px-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Vehicle</th>
-                                <th className="py-4 px-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Dates</th>
-                                <th className="py-4 px-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Total</th>
-                                <th className="py-4 px-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                                <th className="py-4 px-6 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {bookings.map(booking => (
-                                <tr key={booking._id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="py-4 px-6">
-                                        <div className="font-bold text-gray-900">{booking.user?.name || 'Unknown'}</div>
-                                        <div className="text-xs text-gray-500">{booking.user?.email}</div>
-                                    </td>
-                                    <td className="py-4 px-6">
-                                        <span className="font-medium">{booking.car?.name}</span>
-                                    </td>
-                                    <td className="py-4 px-6 text-sm text-gray-600">
-                                        {format(new Date(booking.startDate), 'MMM dd')} - {format(new Date(booking.endDate), 'MMM dd')}
-                                    </td>
-                                    <td className="py-4 px-6 font-bold text-gray-900">${booking.totalPrice}</td>
-                                    <td className="py-4 px-6">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold
-                      ${booking.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
-                                                booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                    'bg-red-100 text-red-700'}`}>
-                                            {booking.status}
-                                        </span>
-                                    </td>
-                                    <td className="py-4 px-6">
-                                        <button className="text-primary-600 hover:text-primary-800 font-bold text-xs">Manage</button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    {bookings.length === 0 && <div className="p-8 text-center text-gray-500">No recent bookings found.</div>}
-                </div>
+                <h2 className="text-3xl font-bold mb-4 relative z-10">Welcome Back, Admin!</h2>
+                <p className="text-gray-300 max-w-xl mb-8 relative z-10">
+                    You have <span className="text-white font-bold">{stats.totalBookings}</span> total bookings and have generated <span className="text-white font-bold">${stats.totalRevenue.toLocaleString()}</span> in revenue.
+                    Head over to the bookings manager to handle pending requests.
+                </p>
+
+                <a href="/admin/bookings" className="inline-flex items-center px-6 py-3 bg-white text-gray-900 rounded-xl font-bold hover:bg-gray-100 transition-colors relative z-10 shadow-lg">
+                    Manage Bookings
+                </a>
             </div>
         </div>
     );
